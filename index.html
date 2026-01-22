@@ -496,7 +496,7 @@
 
     <script>
         // CONFIGURATION
-        const API_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxOQ6tosa7NE0F8WjAtU3xMjacFj-CDPrED8KQGjXbPiMqFqMsYySZVGU81vQzrxwr4/exec';
+        const API_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxh7NWDF7i3Qdt7qOkpLEdBqG4EeEXUk-5tTezhY-vseGJh3op0vZntqPTR9jT80hW-/exec';
 
         // STATE
         let allVehicles = [];
@@ -624,7 +624,7 @@
                             ${v.note ? `<div class="alert alert-info py-1 px-2 mt-2 small"><i class="fa-solid fa-circle-info"></i> ${v.note}</div>` : ''}
 
                             <div class="d-flex justify-content-end">
-                                <button onclick="showBookingModal()" class="btn btn-booking mt-2 btn-3d w-auto px-4">
+                                <button onclick="showBookingModal('${v.note || ''}', '${v.licensePlate}')" class="btn btn-booking mt-2 btn-3d w-auto px-4">
                                     ĐẶT XE NÀY
                                 </button>
                             </div>
@@ -681,8 +681,32 @@
             }
         }
 
-        function showBookingModal() {
+        function showBookingModal(vehicleNote, licensePlate) {
             const modal = new bootstrap.Modal(document.getElementById('bookingModal'));
+
+            // Logic Extract Phone from Note (Ex: "LH: 09123...")
+            let displayPhone = appConfig.hotline;
+            let displayText = appConfig.hotline;
+
+            if (vehicleNote) {
+                // Try to find a phone number sequence
+                const phoneMatch = vehicleNote.match(/(\d{9,11})/);
+                if (phoneMatch) {
+                    displayPhone = phoneMatch[0];
+                    displayText = displayPhone + " (Chủ xe)";
+                }
+            }
+
+            // Update UI
+            const bookingLink = document.getElementById('bookingHotline');
+            const bookingText = document.getElementById('bookingPhoneText');
+
+            bookingLink.href = `tel:${displayPhone}`;
+            bookingText.innerText = displayText;
+
+            // Update Title or Subtitle if needed
+            // Example: document.querySelector('#bookingModal .modal-title').innerText = `Đặt xe ${licensePlate}`;
+
             modal.show();
         }
 
@@ -838,5 +862,3 @@
 </body>
 
 </html>
-
-
