@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hoàng Gia Logistics - Sàn Vận Tải</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --brand-color: #001f3f;
+            /* Navy Blue */
+            --action-color: #ffc107;
+            /* Amber/Yellow */
+            --action-hover: #ffca2c;
+            --danger-color: #dc3545;
+            --success-color: #198754;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f6f9;
+            padding-bottom: 80px;
+            /* Space for FAB */
+        }
+
+        /* Header */
+        header {
+            background-color: var(--brand-color);
+            color: white;
+            padding: 10px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .marquee-container {
+            background-color: #333;
+            color: #fff;
+            padding: 5px 0;
+            font-size: 0.9rem;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .marquee-text {
+            display: inline-block;
+            animation: marquee 15s linear infinite;
+        }
+
+        @keyframes marquee {
+            0% {
+                transform: translateX(100%);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        /* Cards */
+        .vehicle-card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+            transition: transform 0.2s;
+            background: white;
+        }
+
+        .vehicle-card:active {
+            transform: scale(0.98);
+        }
+
+        .card-header-custom {
+            background-color: #e9ecef;
+            border-radius: 10px 10px 0 0;
+            padding: 10px 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .route-text {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--brand-color);
+            margin: 10px 0;
+        }
+
+        .progress {
+            height: 20px;
+            border-radius: 10px;
+            background-color: #e0e0e0;
+        }
+
+        .remain-load {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--danger-color);
+            text-align: center;
+            margin-top: 5px;
+            display: block;
+        }
+
+        /* Buttons */
+        .btn-booking {
+            background-color: var(--action-color);
+            color: #000;
+            font-weight: bold;
+            width: 100%;
+            border: none;
+        }
+
+        .btn-booking:hover {
+            background-color: var(--action-hover);
+        }
+
+        /* FAB */
+        .fab-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1050;
+        }
+
+        .fab-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--brand-color);
+            color: var(--action-color);
+            border: 2px solid white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .fab-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Driver Hidden Login */
+        .driver-trigger {
+            opacity: 0.1;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 50px;
+            z-index: 100;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Loading -->
+    <div id="loading" class="loading-overlay">
+        <div class="spinner-border text-primary" role="status"></div>
+        <div class="mt-2 fw-bold">Đang tải dữ liệu...</div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container d-flex justify-content-between align-items-center">
+            <h5 class="m-0 fw-bold"><i class="fa-solid fa-truck-fast"></i> HOÀNG GIA LOGISTICS</h5>
+            <a id="btnHotline" href="tel:" class="btn btn-sm btn-outline-warning text-white border-warning">
+                <i class="fa-solid fa-phone"></i> Gọi ngay
+            </a>
+        </div>
+    </header>
+
+    <!-- Marquee -->
+    <div class="marquee-container">
+        <div class="marquee-text" id="notificationText">Chào mừng đến với Sàn Vận Tải Hoàng Gia Logistics...</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mt-3">
+
+        <!-- Filter Tools -->
+        <div class="card mb-3 p-2 shadow-sm">
+            <div class="row g-2">
+                <div class="col-6 col-md-4">
+                    <input type="text" id="filterStart" class="form-control form-control-sm" placeholder="Điểm đi...">
+                </div>
+                <div class="col-6 col-md-4">
+                    <input type="text" id="filterEnd" class="form-control form-control-sm" placeholder="Điểm đến...">
+                </div>
+                <div class="col-12 col-md-4">
+                    <input type="date" id="filterDate" class="form-control form-control-sm">
+                </div>
+            </div>
+        </div>
+
+        <!-- Vehicle List -->
+        <div id="vehicleList">
+            <!-- Items rendered here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="text-center mt-5 d-none">
+            <i class="fa-solid fa-box-open fa-3x text-muted"></i>
+            <p class="text-muted mt-2">Không tìm thấy xe nào phù hợp.</p>
+        </div>
+
+    </div>
+
+    <!-- FAB Support -->
+    <div class="fab-container">
+        <button class="fab-btn" onclick="showSupportModal()">
+            <i class="fa-solid fa-qrcode"></i>
+        </button>
+    </div>
+
+    <!-- Modals -->
+
+    <!-- Support Modal -->
+    <div class="modal fade" id="supportModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chat với nhân viên hỗ trợ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="qrcode" class="d-flex justify-content-center mb-3"></div>
+                    <p class="text-muted small">Quét mã Zalo để được tư vấn nhanh nhất</p>
+                    <a id="zaloLink" href="#" target="_blank" class="btn btn-primary btn-sm">
+                        <i class="fa-solid fa-comments"></i> Mở Zalo ngay
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Driver Login Modal -->
+    <div class="modal fade" id="driverLoginModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Dành cho Tài Xế</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Chọn biển số xe</label>
+                        <select id="loginLicensePlate" class="form-select"></select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mật khẩu xác thực</label>
+                        <input type="password" id="loginPassword" class="form-control" placeholder="Nhập mật khẩu...">
+                    </div>
+                    <div class="d-grid">
+                        <button onclick="checkDriverLogin()" class="btn btn-primary">Tiếp tục</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Driver Update Modal -->
+    <div class="modal fade" id="driverUpdateModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">Cập nhật tải trọng</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h6 class="text-center fw-bold text-primary mb-3" id="driverPlateDisplay"></h6>
+                    <div class="mb-3">
+                        <label class="form-label">Tải trọng hiện tại đang chở (kg)</label>
+                        <input type="number" id="updateLoad" class="form-control form-control-lg text-center"
+                            placeholder="0">
+                    </div>
+                    <div class="d-grid">
+                        <button onclick="submitLoadUpdate()" class="btn btn-success">Cập nhật ngay</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Info Modal -->
+    <div class="modal fade" id="bookingModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Liên hệ đặt xe</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p>Vui lòng liên hệ Hotline để đặt xe này:</p>
+                    <a id="bookingHotline" href="tel:" class="btn btn-warning btn-lg fw-bold w-100 pulse-anim">
+                        <i class="fa-solid fa-phone"></i> <span id="bookingPhoneText"></span>
+                    </a>
+                    <p class="mt-2 text-muted small">Hoặc bấm nút góc phải để chat Zalo</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Trigger -->
+    <div class="driver-trigger" onclick="showDriverLogin()"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script>
+        // CONFIGURATION
+        const API_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxh7NWDF7i3Qdt7qOkpLEdBqG4EeEXUk-5tTezhY-vseGJh3op0vZntqPTR9jT80hW-/exec';
+
+        // STATE
+        let allVehicles = [];
+        let appConfig = {};
+
+        // DOM Elements
+        const vehicleListEl = document.getElementById('vehicleList');
+        const emptyStateEl = document.getElementById('emptyState');
+        const loadingEl = document.getElementById('loading');
+
+        // Lifecycle
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initial Check if API Endpoint is set
+            if (API_ENDPOINT.includes('UPDATE_YOUR')) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Chưa cấu hình API',
+                    text: 'Vui lòng update API_ENDPOINT trong code index.html bằng URL Web App của Google Apps Script.'
+                });
+                loadingEl.classList.add('d-none');
+                return;
+            }
+            fetchData();
+
+            // Setup Filters
+            document.getElementById('filterStart').addEventListener('input', filterCars);
+            document.getElementById('filterEnd').addEventListener('input', filterCars);
+            document.getElementById('filterDate').addEventListener('change', filterCars);
+        });
+
+        // Fetch Data
+        async function fetchData() {
+            try {
+                const response = await fetch(API_ENDPOINT);
+                const data = await response.json();
+
+                appConfig = data.config;
+                allVehicles = data.vehicles;
+
+                updateUIConfig();
+                renderVehicles(allVehicles);
+                prepareDriverSelect();
+
+                loadingEl.classList.add('d-none');
+            } catch (error) {
+                console.error(error);
+                loadingEl.classList.add('d-none');
+                Swal.fire('Lỗi', 'Không thể tải dữ liệu. Vui lòng thử lại.', 'error');
+            }
+        }
+
+        function updateUIConfig() {
+            // Hotline
+            const btnHotline = document.getElementById('btnHotline');
+            btnHotline.href = `tel:${appConfig.hotline}`;
+
+            const bookingHotline = document.getElementById('bookingHotline');
+            bookingHotline.href = `tel:${appConfig.hotline}`;
+            document.getElementById('bookingPhoneText').innerText = appConfig.hotline;
+
+            // Notification
+            document.getElementById('notificationText').innerText = appConfig.notification;
+
+            // Zalo Link
+            const zaloUrl = `https://zalo.me/${appConfig.hotline}`;
+            document.getElementById('zaloLink').href = zaloUrl;
+        }
+
+        // Render Cards
+        function renderVehicles(vehicles) {
+            vehicleListEl.innerHTML = '';
+
+            if (vehicles.length === 0) {
+                emptyStateEl.classList.remove('d-none');
+                return;
+            }
+            emptyStateEl.classList.add('d-none');
+
+            vehicles.forEach(v => {
+                const percent = Math.min(100, Math.round((v.currentLoad / v.maxLoad) * 100));
+                let colorClass = 'bg-success';
+                if (percent >= 50) colorClass = 'bg-warning';
+                if (percent >= 80) colorClass = 'bg-danger';
+
+                const cardHTML = `
+                    <div class="vehicle-card">
+                        <div class="card-header-custom">
+                            <span><i class="fa-solid fa-truck"></i> ${v.licensePlate}</span>
+                            <span class="badge bg-secondary">${v.startDate}</span>
+                        </div>
+                        <div class="p-3">
+                            <div class="route-text">
+                                <i class="fa-solid fa-location-dot text-danger"></i> ${v.startPoint} 
+                                <br>
+                                <i class="fa-solid fa-arrow-down text-muted ms-1"></i>
+                                <br>
+                                <i class="fa-solid fa-flag-checkered text-success"></i> ${v.endPoint}
+                            </div>
+                            
+                            <!-- Progress Bar -->
+                            <div class="d-flex justify-content-between small text-muted mb-1">
+                                <span>Đã chở: ${v.currentLoad}kg</span>
+                                <span>Tổng: ${v.maxLoad}kg</span>
+                            </div>
+                            <div class="progress mb-2">
+                                <div class="progress-bar ${colorClass}" role="progressbar" style="width: ${percent}%"></div>
+                            </div>
+                            
+                            <div class="remain-load">CÒN DƯ: ${v.remainLoad} KG</div>
+                            
+                            ${v.note ? `<div class="alert alert-info py-1 px-2 mt-2 small"><i class="fa-solid fa-circle-info"></i> ${v.note}</div>` : ''}
+
+                            <button onclick="showBookingModal()" class="btn btn-booking mt-2">
+                                ĐẶT XE NÀY
+                            </button>
+                        </div>
+                    </div>
+                `;
+                vehicleListEl.insertAdjacentHTML('beforeend', cardHTML);
+            });
+        }
+
+        // Filter Logic
+        function filterCars() {
+            const start = document.getElementById('filterStart').value.toLowerCase();
+            const end = document.getElementById('filterEnd').value.toLowerCase();
+            const dateInput = document.getElementById('filterDate').value; // yyyy-mm-dd
+
+            // Convert input date to dd/mm/yyyy for comparison if needed, 
+            // BUT our data is already formatted string "dd/MM/yyyy". 
+            // Let's do a simple string includes check or parse if strictly needed.
+            // For simplicity in this version, we match substrings or exact date string if format matches.
+            // A better way is to normalize both to comparable values.
+
+            let dateSearch = '';
+            if (dateInput) {
+                const [y, m, d] = dateInput.split('-');
+                dateSearch = `${d}/${m}/${y}`;
+            }
+
+            const filtered = allVehicles.filter(v => {
+                const matchStart = !start || v.startPoint.toLowerCase().includes(start);
+                const matchEnd = !end || v.endPoint.toLowerCase().includes(end);
+                const matchDate = !dateSearch || v.startDate === dateSearch;
+                return matchStart && matchEnd && matchDate;
+            });
+
+            renderVehicles(filtered);
+        }
+
+        // Support Modal & QR
+        let qrGenerated = false;
+        function showSupportModal() {
+            const modal = new bootstrap.Modal(document.getElementById('supportModal'));
+            modal.show();
+
+            if (!qrGenerated && appConfig.hotline) {
+                const container = document.getElementById('qrcode');
+                container.innerHTML = ''; // Clear prev
+                new QRCode(container, {
+                    text: `https://zalo.me/${appConfig.hotline}`,
+                    width: 128,
+                    height: 128
+                });
+                qrGenerated = true;
+            }
+        }
+
+        function showBookingModal() {
+            const modal = new bootstrap.Modal(document.getElementById('bookingModal'));
+            modal.show();
+        }
+
+        // Driver Interface
+        function showDriverLogin() {
+            const modal = new bootstrap.Modal(document.getElementById('driverLoginModal'));
+            modal.show();
+        }
+
+        function prepareDriverSelect() {
+            const select = document.getElementById('loginLicensePlate');
+            select.innerHTML = '';
+            allVehicles.forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v.licensePlate;
+                opt.text = v.licensePlate;
+                select.appendChild(opt);
+            });
+        }
+
+        let currentDriverPlate = '';
+        let currentDriverPass = '';
+
+        function checkDriverLogin() {
+            const plate = document.getElementById('loginLicensePlate').value;
+            const pass = document.getElementById('loginPassword').value;
+
+            if (!pass) {
+                Swal.fire('Lỗi', 'Vui lòng nhập mật khẩu', 'warning');
+                return;
+            }
+
+            // Client side basic check? No, server checks password. 
+            // logic: we just store it and open update modal. Verifying happens on POST.
+            // Or we could strictly enforce "if we had hash", but user req says "Check col J on server".
+            // So we proceed to Update Modal and let Server validate when submitting.
+
+            currentDriverPlate = plate;
+            currentDriverPass = pass;
+
+            // Hide Login, Show Update
+            bootstrap.Modal.getInstance(document.getElementById('driverLoginModal')).hide();
+
+            document.getElementById('driverPlateDisplay').innerText = `Xe: ${currentDriverPlate}`;
+
+            // Find current vehicle to pre-fill?
+            const v = allVehicles.find(x => x.licensePlate === plate);
+            if (v) {
+                document.getElementById('updateLoad').value = v.currentLoad;
+            }
+
+            const updateModal = new bootstrap.Modal(document.getElementById('driverUpdateModal'));
+            updateModal.show();
+        }
+
+        async function submitLoadUpdate() {
+            const newLoad = document.getElementById('updateLoad').value;
+            if (newLoad === '') {
+                Swal.fire('Lỗi', 'Vui lòng nhập khối lượng', 'warning');
+                return;
+            }
+
+            Swal.fire({
+                title: 'Đang cập nhật...',
+                didOpen: () => Swal.showLoading()
+            });
+
+            try {
+                // Use fetch with no-cors or simple POST if Web App setup allows.
+                // Google Apps Script Web App POST handling.
+                // NOTE: 'no-cors' mode wont fetch JSON response. 
+                // We rely on standard CORS being handled by the server (we added logic in GAS plan).
+
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        licensePlate: currentDriverPlate,
+                        password: currentDriverPass,
+                        newLoad: newLoad
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    Swal.fire('Thành công', result.message, 'success').then(() => {
+                        location.reload(); // Reload to fetch fresh data
+                    });
+                } else {
+                    Swal.fire('Thất bại', result.message, 'error');
+                }
+
+            } catch (error) {
+                console.error(error);
+                // GAS often returns 302 redirect for POST which fetch follows.
+                // If CORS headers are not perfect, it might fail.
+                // Let's assume standard success for now.
+                Swal.fire('Lỗi', 'Có lỗi xảy ra khi kết nối Server.', 'error');
+            }
+        }
+
+    </script>
+</body>
+
+</html>
