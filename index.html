@@ -178,6 +178,60 @@
             flex-direction: column;
         }
     </style>
+    <style>
+        /* 3D Button Utility */
+        .btn-3d {
+            transition: all 0.1s;
+            box-shadow: 0px 4px 0px 0px rgba(0, 0, 0, 0.2) !important;
+            transform: translateY(0);
+            border-bottom: none !important;
+        }
+
+        .btn-3d:active {
+            transform: translateY(4px);
+            box-shadow: none !important;
+        }
+
+        /* Footer */
+        .main-footer {
+            background-color: var(--brand-color);
+            color: white;
+            padding: 40px 0 20px;
+            margin-top: 50px;
+            border-top: 5px solid var(--action-color);
+        }
+
+        .footer-title {
+            color: var(--action-color);
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .footer-text {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+
+        .developer-tag {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.8rem;
+            color: #ccc;
+        }
+
+        /* Zalo Bot Placeholder */
+        .zalo-bot-location {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            z-index: 999;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -192,7 +246,7 @@
     <header>
         <div class="container d-flex justify-content-between align-items-center">
             <h5 class="m-0 fw-bold"><i class="fa-solid fa-truck-fast"></i> HOÀNG GIA LOGISTICS</h5>
-            <a id="btnHotline" href="tel:" class="btn btn-sm btn-outline-warning text-white border-warning">
+            <a id="btnHotline" href="tel:" class="btn btn-sm btn-warning text-dark fw-bold btn-3d">
                 <i class="fa-solid fa-phone"></i> Gọi ngay
             </a>
         </div>
@@ -233,6 +287,39 @@
         </div>
 
     </div>
+
+    <!-- Zalo Bot Placeholder -->
+    <!-- Dán mã script của Zalo Bot vào bên trong div này -->
+    <div id="zalo-bot-overlay" class="zalo-bot-location">
+        <!-- Ví dụ: <div class="zalo-chat-widget" ...></div> -->
+    </div>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <h5 class="footer-title">Hoàng Gia Logistics</h5>
+                    <p class="footer-text">
+                        <i class="fa-solid fa-location-dot"></i> Địa chỉ: Hà Nội, Việt Nam<br>
+                        <i class="fa-solid fa-phone"></i> Hotline: <span id="footerHotline">...</span><br>
+                        <i class="fa-solid fa-envelope"></i> Email: contact@hoanggialogistics.vn
+                    </p>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <h5 class="footer-title">Về Chúng Tôi</h5>
+                    <p class="footer-text">
+                        Sàn vận tải kết nối trực tiếp khách hàng và nhà xe.
+                        Cam kết giá rẻ nhất, dịch vụ tốt nhất, thông tin minh bạch.
+                    </p>
+                </div>
+            </div>
+            <div class="developer-tag">
+                &copy; 2024 Hoang Gia Logistics. Thiết kế và vận hành bởi <span
+                    class="text-warning fw-bold">ThanhbinhPC</span>
+            </div>
+        </div>
+    </footer>
 
     <!-- FAB Support -->
     <div class="fab-container">
@@ -298,7 +385,7 @@
                 <div class="modal-body">
                     <h6 class="text-center fw-bold text-primary mb-3" id="driverPlateDisplay"></h6>
                     <div class="mb-3">
-                        <label class="form-label">Tải trọng hiện tại đang chở (Tấn)</label>
+                        <label class="form-label">Tải trọng hiện tại đang chở (kg)</label>
                         <input type="number" id="updateLoad" class="form-control form-control-lg text-center"
                             placeholder="0">
                     </div>
@@ -398,7 +485,12 @@
 
             const bookingHotline = document.getElementById('bookingHotline');
             bookingHotline.href = `tel:${appConfig.hotline}`;
+
             document.getElementById('bookingPhoneText').innerText = appConfig.hotline;
+
+            // Footer Hotline
+            const footerHotline = document.getElementById('footerHotline');
+            if (footerHotline) footerHotline.innerText = appConfig.hotline;
 
             // Notification
             document.getElementById('notificationText').innerText = appConfig.notification;
@@ -441,18 +533,18 @@
                             
                             <!-- Progress Bar -->
                             <div class="d-flex justify-content-between small text-muted mb-1">
-                                <span>Đã chở: ${v.currentLoad}Tấn</span>
-                                <span>Tổng: ${v.maxLoad}Tấn</span>
+                                <span>Đã chở: ${v.currentLoad}kg</span>
+                                <span>Tổng: ${v.maxLoad}kg</span>
                             </div>
                             <div class="progress mb-2">
                                 <div class="progress-bar ${colorClass}" role="progressbar" style="width: ${percent}%"></div>
                             </div>
                             
-                            <div class="remain-load">CÒN DƯ: ${v.remainLoad} Tấn</div>
+                            <div class="remain-load">CÒN DƯ: ${v.remainLoad} KG</div>
                             
                             ${v.note ? `<div class="alert alert-info py-1 px-2 mt-2 small"><i class="fa-solid fa-circle-info"></i> ${v.note}</div>` : ''}
 
-                            <button onclick="showBookingModal()" class="btn btn-booking mt-2">
+                            <button onclick="showBookingModal()" class="btn btn-booking mt-2 btn-3d">
                                 ĐẶT XE NÀY
                             </button>
                         </div>
@@ -613,6 +705,5 @@
 
     </script>
 </body>
-
 
 </html>
